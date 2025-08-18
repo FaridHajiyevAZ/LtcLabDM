@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Groups</h2>
+<form method="post" class="row g-2 mb-4">
+  {{ form.hidden_tag() }}
+  <div class="col-auto">{{ form.name(class_='form-control', placeholder='Name') }}</div>
+  <div class="col-auto">{{ form.start_date(class_='form-control') }}</div>
+  <div class="col-auto">{{ form.end_date(class_='form-control') }}</div>
+  <div class="col-auto"><button class="btn btn-primary" type="submit">Add</button></div>
+</form>
+<table class="table">
+  <tr><th>Name</th><th>Students</th><th>Class Days</th><th>Actions</th></tr>
+  {% for group in groups %}
+  <tr>
+    <td>{{ group.name }}</td>
+    <td>{{ group.students|length }}</td>
+    <td>{{ group.class_days|length }}</td>
+    <td>
+      <a class="btn btn-sm btn-secondary" href="{{ url_for('groups.edit_group', group_id=group.id) }}">Edit</a>
+      <a class="btn btn-sm btn-info" href="{{ url_for('students.manage_students', group_id=group.id) }}">Students</a>
+      <a class="btn btn-sm btn-warning" href="{{ url_for('days.manage_days', group_id=group.id) }}">Days</a>
+      <a class="btn btn-sm btn-success" href="{{ url_for('scores.show_scores', group_id=group.id) }}">Scores</a>
+      <form method="post" action="{{ url_for('groups.delete_group', group_id=group.id) }}" style="display:inline-block" onsubmit="return confirm('Delete group?');">
+        {{ csrf_token() }}
+        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
