@@ -1,1 +1,42 @@
+# LTC Lab DM Control Site
+
+This repository contains the source for the **LTC Lab DM control** site. The site is deployed as a static website through GitHub Pages and served at [https://control.ltclab.digital](https://control.ltclab.digital).
+
+## Prerequisites
+
+- **Node.js and npm** – used for installing dependencies and building the site.
+- **Git** – required for version control and deployment.
+- **Custom domain configuration** – DNS records for `control.ltclab.digital` should point to GitHub Pages (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`).
+
+## Building the site
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Generate the static files:
+   ```bash
+   npm run build
+   ```
+   The build output should produce static assets in a directory such as `dist` or `build` (depending on the chosen tool).
+
+## Deployment
+
+The project is deployed via **GitHub Pages**. Pushing changes to the `main` branch will publish the latest build. GitHub Pages uses the `CNAME` file in this repository to configure the custom domain.
+
+## Updating the custom domain
+
+1. Edit the `CNAME` file in the repository root so that it contains only the desired domain name:
+   ```text
+   control.ltclab.digital
+   ```
+2. Commit and push the change:
+   ```bash
+   git commit -am "chore: update CNAME" && git push
+   ```
+3. Update your domain's DNS records to point to GitHub Pages, if necessary.
+
+## Contributing
+
+Feel free to open issues or pull requests for improvements or bug fixes.
 
