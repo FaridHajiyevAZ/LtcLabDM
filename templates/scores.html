@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Scores for {{ group.name }}</h2>
+<table class="table">
+  <tr><th>Student</th><th>Points</th></tr>
+  {% for student, total in data %}
+  <tr><td>{{ student.full_name }}</td><td>{{ total }}</td></tr>
+  {% endfor %}
+</table>
+<p><a class="btn btn-secondary" href="{{ url_for('scores.scores_csv', group_id=group.id) }}">Download CSV</a></p>
+<p><a href="{{ url_for('groups.list_groups') }}">Back to groups</a></p>
+{% endblock %}

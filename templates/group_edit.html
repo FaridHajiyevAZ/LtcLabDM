@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Group</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.name.label(class_='form-label') }}
+    {{ form.name(class_='form-control') }}
+  </div>
+  <div class="mb-3">
+    {{ form.start_date.label(class_='form-label') }}
+    {{ form.start_date(class_='form-control') }}
+  </div>
+  <div class="mb-3">
+    {{ form.end_date.label(class_='form-label') }}
+    {{ form.end_date(class_='form-control') }}
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+</form>
+{% endblock %}
