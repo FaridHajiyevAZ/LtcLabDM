@@ -1,0 +1,5 @@
+Flask
+Flask-WTF
+SQLAlchemy
+psycopg[binary]
+gunicorn

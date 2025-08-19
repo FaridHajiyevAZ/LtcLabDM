@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Attendance for {{ group.name }} on {{ day.date }}</h2>
+<form method="post">
+  {{ csrf_token() }}
+  <table class="table">
+    <tr><th>Student</th><th>Present</th></tr>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.full_name }}</td>
+      <td><input type="checkbox" name="{{ s.id }}" {% if attendance.get(s.id) %}checked{% endif %}></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <button class="btn btn-secondary mb-2" type="button" onclick="toggle(true)">Mark all present</button>
+  <button class="btn btn-secondary mb-2" type="button" onclick="toggle(false)">Mark none</button>
+  <button class="btn btn-primary" type="submit">Save</button>
+</form>
+<script>
+function toggle(state){
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = state);
+}
+</script>
+<p><a href="{{ url_for('days.manage_days', group_id=group.id) }}">Back to days</a></p>
+{% endblock %}
