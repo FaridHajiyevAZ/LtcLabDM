@@ -17,6 +17,11 @@ def login_required(view):
     return wrapped
 
 
+@auth_bp.route("/admin")
+def admin():
+    return redirect(url_for("auth.login"))
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
