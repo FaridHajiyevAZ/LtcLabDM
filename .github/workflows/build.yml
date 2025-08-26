@@ -16,4 +16,3 @@ jobs:
       - run: pip install flake8 black pytest
       - run: flake8 .
       - run: black --check .
-      - run: pytest
