@@ -15,6 +15,8 @@
           {{ csrf_token() }}
           <button class="btn btn-outline-danger" type="submit">Logout</button>
         </form>
+        {% else %}
+        <a class="btn btn-outline-primary" href="{{ url_for('auth.admin') }}">Admin Login</a>
         {% endif %}
       </div>
     </nav>

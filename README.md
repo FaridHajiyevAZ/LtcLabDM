@@ -42,7 +42,7 @@ docker run -p 8080:8080 -e ADMIN_PASSWORD=admin123 attendance-app
 
 ## Usage
 
-1. Log in using the password.
+1. Visit `/admin` and log in using the password.
 2. Create a group with start and end dates.
 3. Add students and class days.
 4. Record attendance and view scores or download the CSV export.
