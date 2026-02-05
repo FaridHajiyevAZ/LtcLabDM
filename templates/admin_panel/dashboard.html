@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Warranty Portal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #0d6efd;">
+      <div class="card-body">
+        <h6 class="text-muted">Customers</h6>
+        <h3>{{ total_customers }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #6c757d;">
+      <div class="card-body">
+        <h6 class="text-muted">Registrations</h6>
+        <h3>{{ total_registrations }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #ffc107;">
+      <div class="card-body">
+        <h6 class="text-muted">Pending Review</h6>
+        <h3>{{ pending_reviews }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #198754;">
+      <div class="card-body">
+        <h6 class="text-muted">Active Warranties</h6>
+        <h3>{{ active_warranties }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #0dcaf0;">
+      <div class="card-body">
+        <h6 class="text-muted">Open Tickets</h6>
+        <h3>{{ open_tickets }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card card-stat shadow-sm" style="border-left-color: #dc3545;">
+      <div class="card-body">
+        <h6 class="text-muted">Fraud Flags</h6>
+        <h3>{{ flagged }}</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">Recent Registrations</h5>
+        <a href="{{ url_for('admin.list_registrations') }}" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Customer</th>
+              <th>Model</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reg in recent_registrations %}
+            <tr>
+              <td>{{ reg.owner.full_name }}</td>
+              <td>{{ reg.mattress_model.name }}</td>
+              <td>
+                <span class="warranty-{{ reg.warranty_status }}">{{ reg.warranty_status|replace('_', ' ')|title }}</span>
+                {% if reg.is_flagged %}<i class="bi bi-exclamation-triangle text-danger ms-1" title="Flagged"></i>{% endif %}
+              </td>
+              <td>{{ reg.created_at.strftime('%Y-%m-%d') }}</td>
+              <td><a href="{{ url_for('admin.view_registration', reg_id=reg.id) }}" class="btn btn-sm btn-outline-secondary">Review</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header"><h5 class="mb-0">Quick Links</h5></div>
+      <div class="card-body">
+        <a href="{{ url_for('admin.list_registrations', status='pending_review') }}" class="btn btn-warning w-100 mb-2">
+          <i class="bi bi-clock-history"></i> Pending Reviews ({{ pending_reviews }})
+        </a>
+        <a href="{{ url_for('admin.list_tickets', status='open') }}" class="btn btn-info w-100 mb-2">
+          <i class="bi bi-chat-dots"></i> Open Tickets ({{ open_tickets }})
+        </a>
+        <a href="{{ url_for('admin.fraud_alerts') }}" class="btn btn-danger w-100 mb-2">
+          <i class="bi bi-exclamation-triangle"></i> Fraud Alerts ({{ flagged }})
+        </a>
+        <a href="{{ url_for('admin.manage_models') }}" class="btn btn-secondary w-100 mb-2">
+          <i class="bi bi-box"></i> Manage Models
+        </a>
+        <a href="{{ url_for('admin.audit_log') }}" class="btn btn-outline-dark w-100">
+          <i class="bi bi-journal-text"></i> Audit Log
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

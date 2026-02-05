@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Mattress Models - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Mattress Models</h2>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="table-responsive">
+      <table class="table table-hover bg-white shadow-sm">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Warranty (months)</th>
+            <th>Active</th>
+            <th>Registrations</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in models %}
+          <tr>
+            <td>{{ m.name }}</td>
+            <td>{{ m.sku or '-' }}</td>
+            <td>{{ m.warranty_months }}</td>
+            <td>{% if m.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+            <td>{{ m.registrations.count() }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header"><h5 class="mb-0">Add New Model</h5></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.manage_models') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label class="form-label">Model Name *</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">SKU</label>
+            <input type="text" class="form-control" name="sku">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="2"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Warranty Period (months)</label>
+            <input type="number" class="form-control" name="warranty_months" value="120" min="1">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Add Model</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

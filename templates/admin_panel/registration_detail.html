@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Registration Review - Admin{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.list_registrations') }}">Registrations</a></li>
+    <li class="breadcrumb-item active">{{ reg.reference_code[:12] }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">Registration Details</h5>
+        <span class="warranty-{{ reg.warranty_status }}">{{ reg.warranty_status|replace('_', ' ')|title }}</span>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <tr><th style="width:200px">Reference</th><td><code>{{ reg.reference_code }}</code></td></tr>
+          <tr><th>Customer</th><td><a href="{{ url_for('admin.view_customer', customer_id=reg.owner.id) }}">{{ reg.owner.full_name }}</a> ({{ reg.owner.email }})</td></tr>
+          <tr><th>Model</th><td>{{ reg.mattress_model.name }}{% if reg.mattress_model.sku %} ({{ reg.mattress_model.sku }}){% endif %}</td></tr>
+          {% if reg.serial_number %}<tr><th>Serial Number</th><td>{{ reg.serial_number }}</td></tr>{% endif %}
+          <tr><th>Purchase Source</th><td>{{ reg.purchase_source }}</td></tr>
+          <tr><th>Purchase Date</th><td>{{ reg.purchase_date.strftime('%Y-%m-%d') }}</td></tr>
+          <tr><th>Submitted</th><td>{{ reg.created_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+          <tr><th>Undamaged Confirmed</th><td>{{ 'Yes' if reg.undamaged_confirmed else 'No' }}</td></tr>
+          <tr><th>Accuracy Confirmed</th><td>{{ 'Yes' if reg.accuracy_confirmed else 'No' }}</td></tr>
+          {% if reg.warranty_start %}
+          <tr><th>Warranty Period</th><td>{{ reg.warranty_start.strftime('%Y-%m-%d') }} &rarr; {{ reg.warranty_end.strftime('%Y-%m-%d') }}</td></tr>
+          {% endif %}
+          {% if reg.reviewed_by %}
+          <tr><th>Reviewed By</th><td>{{ reg.reviewer.full_name }} at {{ reg.reviewed_at.strftime('%Y-%m-%d %H:%M') if reg.reviewed_at else '-' }}</td></tr>
+          {% endif %}
+        </table>
+
+        {% if reg.is_flagged %}
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle"></i> <strong>Fraud Flag:</strong> {{ reg.flag_reason }}
+        </div>
+        {% endif %}
+
+        {% if reg.admin_notes %}
+        <div class="alert alert-secondary">
+          <strong>Admin Notes:</strong><br>
+          <span style="white-space: pre-wrap;">{{ reg.admin_notes }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><h5 class="mb-0">Uploaded Photos</h5></div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for photo in reg.photos %}
+          <div class="col-md-4">
+            <div class="card">
+              <img src="{{ url_for('admin.serve_upload', filename=photo.file_path) }}"
+                   class="card-img-top" alt="{{ photo.photo_type }}" style="max-height: 250px; object-fit: cover;">
+              <div class="card-body p-2">
+                <strong>{{ photo.photo_type|title }}</strong><br>
+                <small class="text-muted">{{ photo.original_filename }}</small><br>
+                <small class="text-muted">Hash: {{ photo.file_hash[:16] }}...</small>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    {% if reg.warranty_status == 'pending_review' %}
+    <div class="card shadow-sm mb-4 border-success">
+      <div class="card-header bg-success text-white"><h6 class="mb-0">Approve Warranty</h6></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.approve_registration', reg_id=reg.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <textarea class="form-control" name="admin_notes" rows="2" placeholder="Notes (optional)"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Approve</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-danger">
+      <div class="card-header bg-danger text-white"><h6 class="mb-0">Reject</h6></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.reject_registration', reg_id=reg.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <textarea class="form-control" name="admin_notes" rows="2" placeholder="Rejection reason..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger w-100">Reject</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-info">
+      <div class="card-header bg-info text-white"><h6 class="mb-0">Request More Info</h6></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.request_info', reg_id=reg.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <textarea class="form-control" name="admin_notes" rows="2" placeholder="What info do you need?" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-info w-100">Request Info</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+      <div class="card-header"><h6 class="mb-0">Related Tickets</h6></div>
+      <div class="card-body">
+        {% set related_tickets = reg.tickets.all() %}
+        {% if related_tickets %}
+          {% for t in related_tickets %}
+          <a href="{{ url_for('admin.view_ticket', ticket_id=t.id) }}" class="d-block mb-2">
+            {{ t.subject }} <span class="status-{{ t.status }}">({{ t.status }})</span>
+          </a>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted mb-0">No related tickets.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

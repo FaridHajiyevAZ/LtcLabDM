@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}New Support Ticket - Warranty Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4">Create Support Ticket</h3>
+
+        <form method="post" action="{{ url_for('customer.new_ticket') }}" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label for="registration_id" class="form-label">Related Product (optional)</label>
+            <select class="form-select" id="registration_id" name="registration_id">
+              <option value="">-- No specific product --</option>
+              {% for reg in registrations %}
+              <option value="{{ reg.id }}">{{ reg.mattress_model.name }} ({{ reg.reference_code[:8] }}...)</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select class="form-select" id="category" name="category">
+              <option value="general">General Inquiry</option>
+              <option value="warranty_claim">Warranty Claim</option>
+              <option value="defect">Product Defect</option>
+              <option value="delivery">Delivery Issue</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="subject" class="form-label">Subject *</label>
+            <input type="text" class="form-control" id="subject" name="subject" required maxlength="300"
+                   value="{{ request.form.get('subject', '') }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="body" class="form-label">Message *</label>
+            <textarea class="form-control" id="body" name="body" rows="5" required maxlength="5000">{{ request.form.get('body', '') }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="attachment" class="form-label">Attachment (optional)</label>
+            <input type="file" class="form-control" id="attachment" name="attachment" accept=".jpg,.jpeg,.png">
+            <div class="form-text">Max 5MB, JPEG/PNG only.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Submit Ticket</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

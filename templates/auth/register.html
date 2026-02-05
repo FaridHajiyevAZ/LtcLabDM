@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Register - Warranty Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4">Create Account</h3>
+        <form method="post" action="{{ url_for('auth.register') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label for="full_name" class="form-label">Full Name *</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" required
+                   value="{{ request.form.get('full_name', '') }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ request.form.get('email', '') }}"
+                   placeholder="your@email.com">
+            <div class="form-text">Email or phone number is required.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" name="phone"
+                   value="{{ request.form.get('phone', '') }}"
+                   placeholder="+1234567890">
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" class="form-control" id="password" name="password" required minlength="8">
+            <div class="form-text">Minimum 8 characters, at least 1 letter and 1 digit.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password_confirm" class="form-label">Confirm Password *</label>
+            <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="consent" name="consent" required>
+            <label class="form-check-label" for="consent">
+              I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a> and privacy policy *
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Create Account</button>
+        </form>
+
+        <hr>
+        <p class="text-center mb-0">
+          Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="termsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Terms and Conditions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>By registering, you agree to the collection and processing of your personal data for warranty management purposes. Your data will be stored securely and used only for after-sales support and warranty activation.</p>
+        <p>You may request export or deletion of your data at any time by contacting support.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

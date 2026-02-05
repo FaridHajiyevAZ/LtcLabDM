@@ -1,4 +1,4 @@
-app = "attendance-app-placeholder"
+app = "warranty-portal-placeholder"
 primary_region = "ams"
 
 [http_service]

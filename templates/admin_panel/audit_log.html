@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Audit Log - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Audit Log</h2>
+
+<div class="table-responsive">
+  <table class="table table-sm table-hover bg-white shadow-sm">
+    <thead class="table-light">
+      <tr>
+        <th>Timestamp</th>
+        <th>User</th>
+        <th>Action</th>
+        <th>Entity</th>
+        <th>IP Address</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td><small>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small></td>
+        <td>{{ log.user.full_name if log.user else 'System' }}</td>
+        <td><code>{{ log.action }}</code></td>
+        <td>
+          {% if log.entity_type %}{{ log.entity_type }} #{{ log.entity_id }}{% else %}-{% endif %}
+        </td>
+        <td><small>{{ log.ip_address or '-' }}</small></td>
+        <td><small>{{ log.details|tojson if log.details else '-' }}</small></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<nav>
+  <ul class="pagination justify-content-center">
+    {% if page > 1 %}
+    <li class="page-item"><a class="page-link" href="?page={{ page - 1 }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item active"><a class="page-link" href="#">Page {{ page }}</a></li>
+    {% if logs|length == 100 %}
+    <li class="page-item"><a class="page-link" href="?page={{ page + 1 }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}

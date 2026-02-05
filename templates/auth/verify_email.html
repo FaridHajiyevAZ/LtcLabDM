@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Verify Email - Warranty Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4">Verify Your Email</h3>
+        <p>Enter the 6-digit verification code sent to your email.</p>
+
+        <form method="post" action="{{ url_for('auth.verify_email') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="user_id" value="{{ user_id }}">
+
+          <div class="mb-3">
+            <label for="code" class="form-label">Verification Code</label>
+            <input type="text" class="form-control form-control-lg text-center"
+                   id="code" name="code" required
+                   maxlength="6" pattern="\d{6}" placeholder="000000"
+                   autocomplete="one-time-code">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Verify</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

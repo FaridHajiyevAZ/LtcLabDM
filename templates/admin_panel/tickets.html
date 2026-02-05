@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Support Tickets - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Support Tickets</h2>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Status</label>
+        <select class="form-select" name="status">
+          <option value="">All</option>
+          <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+          <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+          <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Priority</label>
+        <select class="form-select" name="priority">
+          <option value="">All</option>
+          <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>Urgent</option>
+          <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+          <option value="normal" {% if priority_filter == 'normal' %}selected{% endif %}>Normal</option>
+          <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-primary w-100">Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light">
+      <tr>
+        <th>Ticket #</th>
+        <th>Customer</th>
+        <th>Subject</th>
+        <th>Category</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Updated</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tickets %}
+      <tr>
+        <td><code>{{ t.ticket_number[:8] }}</code></td>
+        <td>{{ t.customer.full_name }}</td>
+        <td>{{ t.subject[:50] }}{% if t.subject|length > 50 %}...{% endif %}</td>
+        <td>{{ t.category|replace('_', ' ')|title if t.category else '-' }}</td>
+        <td>
+          {% if t.priority == 'urgent' %}<span class="badge bg-danger">Urgent</span>
+          {% elif t.priority == 'high' %}<span class="badge bg-warning">High</span>
+          {% elif t.priority == 'normal' %}<span class="badge bg-info">Normal</span>
+          {% else %}<span class="badge bg-secondary">Low</span>{% endif %}
+        </td>
+        <td><span class="status-{{ t.status }}">{{ t.status|replace('_', ' ')|title }}</span></td>
+        <td>{{ t.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><a href="{{ url_for('admin.view_ticket', ticket_id=t.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.ticket_number[:8] }} - Admin{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.list_tickets') }}">Tickets</a></li>
+    <li class="breadcrumb-item active">{{ ticket.subject }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">{{ ticket.subject }}</h5>
+        <span class="status-{{ ticket.status }}">{{ ticket.status|replace('_', ' ')|title }}</span>
+      </div>
+      <div class="card-body">
+        {% for msg in ticket.messages %}
+        <div class="mb-3 p-3 rounded {% if msg.sender.role == 'admin' %}bg-light border-start border-primary border-3{% else %}bg-white border{% endif %}">
+          <div class="d-flex justify-content-between mb-2">
+            <strong>
+              {% if msg.sender.role == 'admin' %}
+                <i class="bi bi-headset"></i> {{ msg.sender.full_name }} (Admin)
+              {% else %}
+                <i class="bi bi-person"></i> {{ msg.sender.full_name }}
+              {% endif %}
+            </strong>
+            <small class="text-muted">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          </div>
+          <p class="mb-1" style="white-space: pre-wrap;">{{ msg.body }}</p>
+          {% for att in msg.attachments %}
+          <div class="mt-2">
+            <a href="{{ url_for('admin.serve_upload', filename=att.file_path) }}" target="_blank" class="badge bg-secondary">
+              <i class="bi bi-paperclip"></i> {{ att.original_filename }}
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header"><h5 class="mb-0">Admin Reply</h5></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.reply_ticket', ticket_id=ticket.id) }}" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <textarea class="form-control" name="body" rows="4" placeholder="Type your reply..."></textarea>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Update Status</label>
+              <select class="form-select" name="status">
+                <option value="">-- No Change --</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Update Priority</label>
+              <select class="form-select" name="priority">
+                <option value="">-- No Change --</option>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Tags</label>
+              <input type="text" class="form-control" name="admin_tags" value="{{ ticket.admin_tags or '' }}" placeholder="tag1, tag2">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input type="file" class="form-control" name="attachment" accept=".jpg,.jpeg,.png">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Send &amp; Update</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><h6 class="mb-0">Ticket Info</h6></div>
+      <div class="card-body">
+        <p><strong>Ticket #:</strong> <code>{{ ticket.ticket_number }}</code></p>
+        <p><strong>Customer:</strong> <a href="{{ url_for('admin.view_customer', customer_id=ticket.customer.id) }}">{{ ticket.customer.full_name }}</a></p>
+        <p><strong>Email:</strong> {{ ticket.customer.email or '-' }}</p>
+        <p><strong>Category:</strong> {{ ticket.category|replace('_', ' ')|title if ticket.category else '-' }}</p>
+        <p><strong>Priority:</strong> {{ ticket.priority|title }}</p>
+        <p><strong>Created:</strong> {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p><strong>Updated:</strong> {{ ticket.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if ticket.admin_tags %}<p><strong>Tags:</strong> {{ ticket.admin_tags }}</p>{% endif %}
+        {% if ticket.registration %}
+        <p><strong>Product:</strong>
+          <a href="{{ url_for('admin.view_registration', reg_id=ticket.registration.id) }}">
+            {{ ticket.registration.mattress_model.name }}
+          </a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header"><h6 class="mb-0">Quick Status Change</h6></div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.update_ticket_status', ticket_id=ticket.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="d-grid gap-2">
+            <button type="submit" name="status" value="in_progress" class="btn btn-warning btn-sm">Mark In Progress</button>
+            <button type="submit" name="status" value="resolved" class="btn btn-success btn-sm">Mark Resolved</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
