@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Fraud Alerts - Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-exclamation-triangle text-danger"></i> Fraud Alerts</h2>
+
+{% if flagged %}
+<div class="table-responsive">
+  <table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light">
+      <tr>
+        <th>Ref</th>
+        <th>Customer</th>
+        <th>Model</th>
+        <th>Source</th>
+        <th>Flag Reason</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reg in flagged %}
+      <tr>
+        <td><code>{{ reg.reference_code[:8] }}</code></td>
+        <td>{{ reg.owner.full_name }}</td>
+        <td>{{ reg.mattress_model.name }}</td>
+        <td>{{ reg.purchase_source }}</td>
+        <td><small class="text-danger">{{ reg.flag_reason }}</small></td>
+        <td>{{ reg.created_at.strftime('%Y-%m-%d') }}</td>
+        <td><a href="{{ url_for('admin.view_registration', reg_id=reg.id) }}" class="btn btn-sm btn-outline-danger">Review</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-success">No fraud alerts at this time.</div>
+{% endif %}
+{% endblock %}

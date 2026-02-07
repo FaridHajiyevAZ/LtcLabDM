@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.ticket_number[:8] }} - Warranty Portal{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('customer.list_tickets') }}">Support</a></li>
+    <li class="breadcrumb-item active">{{ ticket.subject }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between">
+        <h5 class="mb-0">{{ ticket.subject }}</h5>
+        <span class="status-{{ ticket.status }}">{{ ticket.status|replace('_', ' ')|title }}</span>
+      </div>
+      <div class="card-body">
+        {% for msg in ticket.messages %}
+        <div class="mb-3 p-3 rounded {% if msg.sender.role == 'admin' %}bg-light border-start border-primary border-3{% else %}bg-white border{% endif %}">
+          <div class="d-flex justify-content-between mb-2">
+            <strong>
+              {% if msg.sender.role == 'admin' %}
+                <i class="bi bi-headset"></i> Support Team
+              {% else %}
+                <i class="bi bi-person"></i> {{ msg.sender.full_name }}
+              {% endif %}
+            </strong>
+            <small class="text-muted">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+          </div>
+          <p class="mb-1" style="white-space: pre-wrap;">{{ msg.body }}</p>
+          {% for att in msg.attachments %}
+          <div class="mt-2">
+            <a href="{{ url_for('customer.serve_upload', filename=att.file_path) }}" target="_blank" class="badge bg-secondary">
+              <i class="bi bi-paperclip"></i> {{ att.original_filename }}
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if ticket.status != 'resolved' %}
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5>Reply</h5>
+        <form method="post" action="{{ url_for('customer.reply_ticket', ticket_id=ticket.id) }}" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <textarea class="form-control" name="body" rows="3" required placeholder="Type your reply..."></textarea>
+          </div>
+          <div class="mb-3">
+            <input type="file" class="form-control" name="attachment" accept=".jpg,.jpeg,.png">
+          </div>
+          <button type="submit" class="btn btn-primary">Send Reply</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-success">
+      This ticket has been resolved. You can reply to reopen it if needed.
+      <form method="post" action="{{ url_for('customer.reply_ticket', ticket_id=ticket.id) }}" class="mt-2" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-2">
+          <textarea class="form-control" name="body" rows="2" required placeholder="Type to reopen..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-primary">Reply &amp; Reopen</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header"><h6 class="mb-0">Ticket Info</h6></div>
+      <div class="card-body">
+        <p><strong>Ticket #:</strong> <code>{{ ticket.ticket_number[:12] }}</code></p>
+        <p><strong>Category:</strong> {{ ticket.category|replace('_', ' ')|title if ticket.category else '-' }}</p>
+        <p><strong>Priority:</strong> {{ ticket.priority|title }}</p>
+        <p><strong>Created:</strong> {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p><strong>Updated:</strong> {{ ticket.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if ticket.registration %}
+        <p><strong>Product:</strong>
+          <a href="{{ url_for('customer.view_product', product_id=ticket.registration.id) }}">
+            {{ ticket.registration.mattress_model.name }}
+          </a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

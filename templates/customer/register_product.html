@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Register Product - Warranty Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4"><i class="bi bi-box-seam"></i> Register Your Product</h3>
+        <p class="text-muted mb-4">Complete this form to activate your warranty. All fields marked * are required.</p>
+
+        <form method="post" action="{{ url_for('customer.register_product') }}" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label for="model_id" class="form-label">Mattress Model *</label>
+            <select class="form-select" id="model_id" name="model_id" required>
+              <option value="">-- Select Model --</option>
+              {% for m in models %}
+              <option value="{{ m.id }}" {% if request.form.get('model_id')|string == m.id|string %}selected{% endif %}>
+                {{ m.name }}{% if m.sku %} ({{ m.sku }}){% endif %} &mdash; {{ m.warranty_months }} months warranty
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="serial_number" class="form-label">Serial Number (if available on label)</label>
+            <input type="text" class="form-control" id="serial_number" name="serial_number"
+                   value="{{ request.form.get('serial_number', '') }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="purchase_source" class="form-label">Purchase Source *</label>
+            <input type="text" class="form-control" id="purchase_source" name="purchase_source" required
+                   value="{{ request.form.get('purchase_source', '') }}"
+                   placeholder="Store name, dealer, or online platform">
+          </div>
+
+          <div class="mb-3">
+            <label for="purchase_date" class="form-label">Purchase Date *</label>
+            <input type="date" class="form-control" id="purchase_date" name="purchase_date" required
+                   value="{{ request.form.get('purchase_date', '') }}"
+                   max="{{ now if now is defined else '' }}">
+          </div>
+
+          <hr>
+          <h5 class="mb-3">Product Photos</h5>
+
+          <div class="mb-3">
+            <label for="label_photo" class="form-label">Mattress Label / Tag Photo *</label>
+            <input type="file" class="form-control" id="label_photo" name="label_photo"
+                   accept=".jpg,.jpeg,.png" required>
+            <div class="form-text">Take a clear photo of the product label or tag. Max 5MB, JPEG/PNG only.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="invoice_photo" class="form-label">Invoice / Proof of Purchase *</label>
+            <input type="file" class="form-control" id="invoice_photo" name="invoice_photo"
+                   accept=".jpg,.jpeg,.png" required>
+            <div class="form-text">Photo of your receipt or invoice. Max 5MB, JPEG/PNG only.</div>
+          </div>
+
+          <hr>
+          <h5 class="mb-3">Confirmation</h5>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="undamaged_confirmed" name="undamaged_confirmed" required>
+            <label class="form-check-label" for="undamaged_confirmed">
+              I confirm that the product was received undamaged *
+            </label>
+          </div>
+
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="accuracy_confirmed" name="accuracy_confirmed" required>
+            <label class="form-check-label" for="accuracy_confirmed">
+              I confirm that all information provided is accurate *
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-shield-check"></i> Submit &amp; Activate Warranty
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

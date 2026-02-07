@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Products - Warranty Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>My Registered Products</h2>
+  <a href="{{ url_for('customer.register_product') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle"></i> Register New Product
+  </a>
+</div>
+
+{% if registrations %}
+{% for reg in registrations %}
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-md-3">
+        <h5 class="mb-1">{{ reg.mattress_model.name }}</h5>
+        <small class="text-muted">Ref: {{ reg.reference_code[:12] }}...</small>
+      </div>
+      <div class="col-md-2">
+        <small class="text-muted d-block">Purchased</small>
+        {{ reg.purchase_date.strftime('%Y-%m-%d') }}
+      </div>
+      <div class="col-md-2">
+        <small class="text-muted d-block">Status</small>
+        <span class="warranty-{{ reg.warranty_status }}">{{ reg.warranty_status|replace('_', ' ')|title }}</span>
+      </div>
+      <div class="col-md-3">
+        <small class="text-muted d-block">Warranty Period</small>
+        {% if reg.warranty_start and reg.warranty_end %}
+          {{ reg.warranty_start.strftime('%Y-%m-%d') }} &rarr; {{ reg.warranty_end.strftime('%Y-%m-%d') }}
+          {% if reg.is_warranty_active %}
+          <br><small class="text-success">{{ reg.warranty_days_remaining }} days remaining</small>
+          {% endif %}
+        {% else %}
+          -
+        {% endif %}
+      </div>
+      <div class="col-md-2 text-end">
+        <a href="{{ url_for('customer.view_product', product_id=reg.id) }}" class="btn btn-outline-primary btn-sm">Details</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="alert alert-info">
+  No products registered yet.
+  <a href="{{ url_for('customer.register_product') }}">Register your first product</a>.
+</div>
+{% endif %}
+{% endblock %}

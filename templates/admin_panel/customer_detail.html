@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.full_name }} - Admin{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.list_customers') }}">Customers</a></li>
+    <li class="breadcrumb-item active">{{ customer.full_name }}</li>
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><h5 class="mb-0">Customer Profile</h5></div>
+      <div class="card-body">
+        <p><strong>Name:</strong> {{ customer.full_name }}</p>
+        <p><strong>Email:</strong> {{ customer.email or '-' }}</p>
+        <p><strong>Phone:</strong> {{ customer.phone or '-' }}</p>
+        <p><strong>Verified:</strong>
+          {% if customer.is_verified %}<span class="badge bg-success">Yes</span>
+          {% else %}<span class="badge bg-secondary">No</span>{% endif %}
+        </p>
+        <p><strong>Active:</strong>
+          {% if customer.is_active %}<span class="badge bg-success">Yes</span>
+          {% else %}<span class="badge bg-danger">No</span>{% endif %}
+        </p>
+        <p><strong>Registered:</strong> {{ customer.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if customer.consent_accepted_at %}
+        <p><strong>Consent Given:</strong> {{ customer.consent_accepted_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><h5 class="mb-0">Registered Products ({{ registrations|length }})</h5></div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr><th>Model</th><th>Source</th><th>Date</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for reg in registrations %}
+            <tr>
+              <td>{{ reg.mattress_model.name }}</td>
+              <td>{{ reg.purchase_source }}</td>
+              <td>{{ reg.purchase_date.strftime('%Y-%m-%d') }}</td>
+              <td><span class="warranty-{{ reg.warranty_status }}">{{ reg.warranty_status|replace('_', ' ')|title }}</span></td>
+              <td><a href="{{ url_for('admin.view_registration', reg_id=reg.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header"><h5 class="mb-0">Support Tickets ({{ tickets|length }})</h5></div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr><th>Subject</th><th>Status</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for t in tickets %}
+            <tr>
+              <td>{{ t.subject }}</td>
+              <td><span class="status-{{ t.status }}">{{ t.status|replace('_', ' ')|title }}</span></td>
+              <td>{{ t.created_at.strftime('%Y-%m-%d') }}</td>
+              <td><a href="{{ url_for('admin.view_ticket', ticket_id=t.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
